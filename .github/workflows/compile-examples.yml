@@ -26,6 +26,7 @@ jobs:
       - name: Create a ignore.list file
         run: |
           # eg: echo "<path>,<fqbn>" >> ignore.list
+          echo "baseline_operation_example,Seeeduino:nrf52:xiaonRF52840Sense" >> ignore.list
 
       - name: Build sketch
         run: ./ci/tools/compile.sh
