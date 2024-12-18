@@ -1,4 +1,4 @@
-name: Compile Examples
+name: Run Ci Arduino
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     types: [trigger-workflow]
 
 jobs:
-  build:
+  ci-arduino:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,24 +17,35 @@ jobs:
       - name: Checkout script repository
         uses: actions/checkout@v4
         with:
-            repository: Lesords/actions
+            repository: Seeed-Studio/ci-arduino
             path: ci
 
       - name: Setup arduino cli
         uses: arduino/setup-arduino-cli@v2.0.0
 
+      - name: Create a depend.list file
+        run: |
+          # eg: echo "<repo>" >> depend.list
+
       - name: Create a ignore.list file
         run: |
           # eg: echo "<path>,<fqbn>" >> ignore.list
+          echo "baseline_operation_example,Seeeduino:samd:seeed_XIAO_m0" >> ignore.list
+          echo "baseline_operation_example,Seeeduino:nrf52:xiaonRF52840" >> ignore.list
           echo "baseline_operation_example,Seeeduino:nrf52:xiaonRF52840Sense" >> ignore.list
 
       - name: Build sketch
         run: ./ci/tools/compile.sh
 
       - name: Build result
-        run: cat build.log
+        run: |
+            cat build.log
+            if [ ${{ github.event_name }} == 'pull_request' ] && [ -f compile.failed ]; then
+                exit 1
+            fi
 
       - name: Generate issue
+        if: ${{ github.event_name != 'pull_request' }}
         run: ./ci/tools/issue.sh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
