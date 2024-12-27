@@ -1,0 +1,24 @@
+name: Add PR to Project V2
+
+on:
+  pull_request:
+    types: [opened, edited, reopened]
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the code
+      uses: actions/checkout@v3
+
+    - name: Add PR to Project V2
+      run: |
+        PR_ID=$(gh pr view --json id -q .id)
+        PROJECT_ID="your_project_id"
+        gh api --method POST /projects/columns/cards \
+          -F "content_id=$PR_ID" \
+          -F "content_type=PullRequest" \
+          -F "project_id=$PROJECT_ID"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
