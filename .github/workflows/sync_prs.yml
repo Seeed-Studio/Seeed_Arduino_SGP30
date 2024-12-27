@@ -14,11 +14,16 @@ jobs:
 
     - name: Add PR to Project V2
       run: |
-        PR_ID=$(gh pr view --json id -q .id)
-        PROJECT_ID="your_project_id"
-        gh api --method POST /projects/columns/cards \
-          -F "content_id=$PR_ID" \
-          -F "content_type=PullRequest" \
-          -F "project_id=$PROJECT_ID"
+        # PR_ID=$(gh pr view --json id -q .id)
+        PROJECT_ID="3"
+        gh api graphql -f query='
+          mutation($project:ID!, $pr:ID!) {
+            addProjectV2ItemById(input: {projectId: $project, contentId: $pr}) {
+              item {
+                id
+              }
+            }
+          }' -f project=$PROJECT_ID -f pr=$PR_ID --jq '.data.addProjectV2ItemById.item.id'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PR_ID: ${{ github.event.pull_request.node_id }}
