@@ -2,7 +2,7 @@ name: Add PR to Project V2
 
 on:
   pull_request:
-    types: [opened, edited, reopened]
+    types: [opened, reopened]
 
 jobs:
   add-to-project:
@@ -14,16 +14,8 @@ jobs:
 
     - name: Add PR to Project V2
       run: |
-        # PR_ID=$(gh pr view --json id -q .id)
-        PROJECT_ID="3"
-        gh api graphql -f query='
-          mutation($project:ID!, $pr:ID!) {
-            addProjectV2ItemById(input: {projectId: $project, contentId: $pr}) {
-              item {
-                id
-              }
-            }
-          }' -f project=$PROJECT_ID -f pr=$PR_ID --jq '.data.addProjectV2ItemById.item.id'
+        gh project item-add $PROJECT_ID --owner Lesords --url "$URL"
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        PR_ID: ${{ github.event.pull_request.node_id }}
+        PROJECT_ID: "3"
+        URL: ${{ github.event.pull_request.html_url }}
+        GITHUB_TOKEN: ${{ secrets.Lesords }}
