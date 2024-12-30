@@ -1,4 +1,4 @@
-name: Add PR to Project V2
+name: Add PR to Project
 
 on:
   pull_request:
@@ -9,13 +9,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out the code
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Add PR to Project V2
-      run: |
-        gh project item-add $PROJECT_ID --owner Lesords --url "$URL"
-      env:
-        PROJECT_ID: "3"
-        URL: ${{ github.event.pull_request.html_url }}
-        GITHUB_TOKEN: ${{ secrets.Lesords }}
+      - name: Checkout script repository
+        uses: actions/checkout@v4
+        with:
+          repository: Lesords/actions
+          path: ci
+
+      - name: Run script
+        run: ./ci/tools/addPr2Project.sh
+        env:
+          PROJECT_ID: "3"
+          URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.Lesords }}
